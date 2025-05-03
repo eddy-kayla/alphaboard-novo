@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer
 } from 'recharts';
-import { db } from './firebase';
-import {
-  doc, getDoc, setDoc
-} from 'firebase/firestore';
+import ReadingAndCourses from './components/ReadingAndCourses';
 
 function App() {
-  const today = new Date().toISOString().split('T')[0]; // ex: 2025-05-03
-
   const [checklist, setChecklist] = useState({
     leitura: false,
     treino: false,
@@ -21,31 +22,6 @@ function App() {
     energia: 5,
     insight: ''
   });
-
-  // Load data on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      const docRef = doc(db, 'checkins', today);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setChecklist(data.checklist || checklist);
-        setExtra(data.extra || extra);
-      }
-    };
-    fetchData();
-  }, []);
-
-  // Save data on change
-  useEffect(() => {
-    const saveData = async () => {
-      await setDoc(doc(db, 'checkins', today), {
-        checklist,
-        extra
-      });
-    };
-    saveData();
-  }, [checklist, extra]);
 
   const handleCheck = (item) => {
     setChecklist({ ...checklist, [item]: !checklist[item] });
@@ -67,7 +43,7 @@ function App() {
 
   return (
     <div style={{
-      maxWidth: '600px',
+      maxWidth: '700px',
       margin: '2rem auto',
       padding: '2rem',
       background: '#111',
@@ -136,6 +112,10 @@ function App() {
             <Bar dataKey="valor" fill="#8884d8" />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      <div style={{ marginTop: '3rem' }}>
+        <ReadingAndCourses />
       </div>
     </div>
   );
