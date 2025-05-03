@@ -1,6 +1,6 @@
 // src/ReadingAndCourses.jsx
 import React, { useState, useEffect } from 'react';
-import { db } from './firebase';
+import { db } from './firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 function ReadingAndCourses() {
