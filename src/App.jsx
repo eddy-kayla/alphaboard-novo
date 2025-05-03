@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from 'recharts';
+import { db } from './firebase';
+import {
+  doc, getDoc, setDoc
+} from 'firebase/firestore';
 
 function App() {
+  const today = new Date().toISOString().split('T')[0]; // ex: 2025-05-03
+
   const [checklist, setChecklist] = useState({
     leitura: false,
     treino: false,
@@ -21,6 +21,31 @@ function App() {
     energia: 5,
     insight: ''
   });
+
+  // Load data on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      const docRef = doc(db, 'checkins', today);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setChecklist(data.checklist || checklist);
+        setExtra(data.extra || extra);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Save data on change
+  useEffect(() => {
+    const saveData = async () => {
+      await setDoc(doc(db, 'checkins', today), {
+        checklist,
+        extra
+      });
+    };
+    saveData();
+  }, [checklist, extra]);
 
   const handleCheck = (item) => {
     setChecklist({ ...checklist, [item]: !checklist[item] });
@@ -53,30 +78,30 @@ function App() {
     }}>
       <h1 style={{ fontSize: '1.8rem' }}>AlphaBoard</h1>
       <p style={{ color: '#8f8', marginBottom: '1rem' }}>
-        ✅ Painel ativo em: <strong>{new Date().toLocaleDateString()}</strong>
+        Painel ativo em: <strong>{new Date().toLocaleDateString()}</strong>
       </p>
 
-      <h2 style={{ fontSize: '1.3rem', marginTop: '1.5rem' }}>🧠 Check-in Diário</h2>
+      <h2 style={{ fontSize: '1.3rem', marginTop: '1.5rem' }}>Check-in Diário</h2>
       <div style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>
         <label>
           <input type="checkbox" checked={checklist.leitura} onChange={() => handleCheck('leitura')} />
-          <span style={{ marginLeft: '0.5rem' }}>📚 Leitura feita</span>
+          <span style={{ marginLeft: '0.5rem' }}>Leitura feita</span>
         </label><br />
         <label>
           <input type="checkbox" checked={checklist.treino} onChange={() => handleCheck('treino')} />
-          <span style={{ marginLeft: '0.5rem' }}>🏋️‍♀️ Treino realizado</span>
+          <span style={{ marginLeft: '0.5rem' }}>Treino realizado</span>
         </label><br />
         <label>
           <input type="checkbox" checked={checklist.planejamento} onChange={() => handleCheck('planejamento')} />
-          <span style={{ marginLeft: '0.5rem' }}>🗓️ Planejamento do dia</span>
+          <span style={{ marginLeft: '0.5rem' }}>Planejamento do dia</span>
         </label><br />
         <label>
           <input type="checkbox" checked={checklist.microvitoria} onChange={() => handleCheck('microvitoria')} />
-          <span style={{ marginLeft: '0.5rem' }}>✨ Microvitória conquistada</span>
+          <span style={{ marginLeft: '0.5rem' }}>Microvitória conquistada</span>
         </label>
       </div>
 
-      <h2 style={{ fontSize: '1.3rem', marginTop: '2rem' }}>⚡ Nota de Energia</h2>
+      <h2 style={{ fontSize: '1.3rem', marginTop: '2rem' }}>Nota de Energia</h2>
       <input
         type="range"
         min="0"
@@ -86,7 +111,7 @@ function App() {
       />
       <p>Energia do dia: <strong>{extra.energia}/10</strong></p>
 
-      <h2 style={{ fontSize: '1.3rem', marginTop: '2rem' }}>📝 Insight do Dia</h2>
+      <h2 style={{ fontSize: '1.3rem', marginTop: '2rem' }}>Insight do Dia</h2>
       <textarea
         placeholder="O que aprendi ou percebi hoje?"
         value={extra.insight}
@@ -101,7 +126,7 @@ function App() {
       />
 
       <div style={{ marginTop: '2rem' }}>
-        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>📊 Evolução da Semana</h2>
+        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Evolução da Semana</h2>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={weeklyData}>
             <CartesianGrid strokeDasharray="3 3" />
