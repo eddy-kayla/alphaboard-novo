@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAvZE3X3H-IDW3aABL-qyMzPnHuIr50nuA",
+  apiKey: "AIzaSyAvZE3XH-IDW3aABL-qyMzPnHuIr50nuA",
   authDomain: "alphaboard-f7030.firebaseapp.com",
   projectId: "alphaboard-f7030",
   storageBucket: "alphaboard-f7030.appspot.com",
